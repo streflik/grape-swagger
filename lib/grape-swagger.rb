@@ -175,11 +175,14 @@ module Grape
               
               params.map do |param, value|
                 value[:type] = 'file' if value.is_a?(Hash) && value[:type] == 'Rack::Multipart::UploadedFile'
-
                 dataType    = value.is_a?(Hash) ? (value[:type] || 'String').to_s : 'String'
                 description = value.is_a?(Hash) ? value[:desc] || value[:description] : ''
                 required    = value.is_a?(Hash) ? !!value[:required] : false
-                paramType   = path.include?(":#{param}") ? 'path' : (method == 'POST') ? 'form' : 'query'
+                paramType   = if dataType == "Entity" 
+                  'body'
+                else
+                  path.include?(":#{param}") ? 'path' : (method == 'POST') ? 'form' : 'query'
+                end
                 name        = (value.is_a?(Hash) && value[:full_name]) || param
                 
                 {
